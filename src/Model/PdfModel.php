@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Sfadless\Pdf\Model;
 
+use Sfadless\Pdf\Renderer\RendererOptions;
+
 final readonly class PdfModel implements PdfWritable
 {
     public function __construct(
         private string $pdfTemplate,
         private array $pdfParameters = [],
-        private array $pdfOptions = []
+        private RendererOptions $pdfOptions = new RendererOptions(),
     ) {}
 
     public function getPdfTemplate(): string
@@ -22,7 +24,7 @@ final readonly class PdfModel implements PdfWritable
         return $this->pdfParameters;
     }
 
-    public function getPdfOptions(): array
+    public function getPdfOptions(): RendererOptions
     {
         return $this->pdfOptions;
     }

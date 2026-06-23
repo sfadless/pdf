@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Sfadless\Pdf\Event;
 
 use Sfadless\Pdf\Model\PdfWritable;
-use Symfony\Contracts\EventDispatcher\Event;
 
-final class PreRenderPdfEvent extends Event
+final class PreRenderPdfEvent
 {
     private array $parameters;
 
@@ -28,7 +27,7 @@ final class PreRenderPdfEvent extends Event
         return $this;
     }
 
-    public function addParameter(string $parameter, $value): self
+    public function addParameter(string $parameter, mixed $value): self
     {
         $this->parameters[$parameter] = $value;
 
