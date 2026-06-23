@@ -7,21 +7,19 @@ namespace Sfadless\Pdf;
 use Sfadless\Pdf\Event\PreRenderPdfEvent;
 use Sfadless\Pdf\Model\PdfOptions;
 use Sfadless\Pdf\Model\PdfWritable;
-use Mpdf\{Mpdf, Output\Destination};
-use RuntimeException;
+use Sfadless\Pdf\Renderer\OutputDestination;
+use Sfadless\Pdf\Renderer\PdfRenderer;
+use Sfadless\Pdf\Renderer\RendererOptions;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
-/**
- * @author Pavel Golikov <pgolikov327@gmail.com>
- */
-final class PdfFactory
+final readonly class PdfFactory
 {
     public function __construct(
-        private readonly Mpdf $mpdf,
-        private readonly Environment $twig,
-        private readonly EventDispatcherInterface $dispatcher
+        private PdfRenderer $renderer,
+        private Environment $twig,
+        private EventDispatcherInterface $dispatcher
     ) {}
 
     public function writePdf(PdfWritable $pdfWritable): string
@@ -39,58 +37,29 @@ final class PdfFactory
 
         $options = $this->configureOptions($pdfWritable->getPdfOptions());
 
-        if (isset($options[PdfOptions::PDF_BEFORE])) {
-            $this->addFromSource($options[PdfOptions::PDF_BEFORE]);
-            $this->mpdf->AddPage();
-        }
-
-        $this->mpdf->WriteHTML($html);
-
-        if (isset($options[PdfOptions::FOOTER])) {
-            $this->mpdf->SetHTMLFooter($options[PdfOptions::FOOTER]);
-        }
-
-        if (isset($options[PdfOptions::PDF_AFTER])) {
-            if (is_array($options[PdfOptions::PDF_AFTER])) {
-                foreach ($options[PdfOptions::PDF_AFTER] as $option) {
-                    $this->addFromSource($option);
-                }
-            } else {
-                $this->addFromSource($options[PdfOptions::PDF_AFTER]);
-            }
-        }
-
-        return $this->mpdf->Output($options[PdfOptions::FILE_NAME], $options[PdfOptions::DESTINATION]);
+        return $this->renderer->render($html, $options);
     }
 
-    private function configureOptions(array $options) : array
+    private function configureOptions(array $options): RendererOptions
     {
         $resolver = new OptionsResolver();
 
-        $resolver
+        $options = $resolver
             ->setDefault(PdfOptions::FILE_NAME, 'file.pdf')
-            ->setDefault(PdfOptions::DESTINATION, Destination::STRING_RETURN)
+            ->setDefault(PdfOptions::DESTINATION, OutputDestination::STRING)
+            ->setAllowedTypes(PdfOptions::DESTINATION, OutputDestination::class)
             ->setDefined(PdfOptions::FOOTER)
             ->setDefined(PdfOptions::PDF_BEFORE)
             ->setDefined(PdfOptions::PDF_AFTER)
+            ->resolve()
         ;
 
-        return $resolver->resolve($options);
-    }
-
-    private function addFromSource(string $filepath) : void
-    {
-        if (! file_exists($filepath)) {
-            throw new RuntimeException("Не удалось добавить pdf - файла $filepath не существует");
-        }
-
-        $pageCount = $this->mpdf->setSourceFile($filepath);
-
-        for ($i = 1 ; $i <= $pageCount; $i++) {
-            $tplId = $this->mpdf->ImportPage($i);
-            $this->mpdf->AddPage(resetpagenum: 1, suppress: 'on');
-            $this->mpdf->setFooter('');
-            $this->mpdf->UseTemplate($tplId,0,0, 210, 300);
-        }
+        return new RendererOptions(
+            fileName: $options[PdfOptions::FILE_NAME],
+            destination: $options[PdfOptions::DESTINATION],
+            footer: $options[PdfOptions::FOOTER] ?? null,
+            pdfBefore: $options[PdfOptions::PDF_BEFORE] ?? null,
+            pdfAfter: $options[PdfOptions::PDF_AFTER] ?? [],
+        );
     }
 }

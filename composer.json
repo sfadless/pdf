@@ -2,7 +2,7 @@
   "name": "sfadless/pdf",
   "license": "proprietary",
   "description": "Create pdf files from twig templates",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "autoload": {
     "psr-4": {
       "Sfadless\\Pdf\\" : "src/"

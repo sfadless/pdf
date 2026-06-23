@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Sfadless\Pdf\Model;
 
-/**
- * @author Pavel Golikov <pgolikov327@gmail.com>
- */
 final class PdfOptions
 {
     public const FILE_NAME = 'fileName';
