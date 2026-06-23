@@ -1,26 +1,42 @@
 {
   "name": "sfadless/pdf",
+  "description": "Create PDF files from Twig templates",
   "license": "proprietary",
-  "description": "Create pdf files from twig templates",
-  "version": "0.0.1",
+  "type": "library",
+  "keywords": ["pdf", "twig", "mpdf", "html-to-pdf"],
+  "authors": [
+    {
+      "name": "Pavel Golikov",
+      "email": "pgolikov327@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=8.1",
+    "mpdf/mpdf": "^8.2.2",
+    "twig/twig": "^3.8",
+    "psr/event-dispatcher": "^1.0"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.95",
+    "phpunit/phpunit": "^10.5 || ^11.0 || ^12.0 || ^13.0",
+    "symfony/event-dispatcher": "^6.4 || ^7.0 || ^8.0"
+  },
   "autoload": {
     "psr-4": {
-      "Sfadless\\Pdf\\" : "src/"
+      "Sfadless\\Pdf\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Sfadless\\Pdf\\Test\\" : "tests/"
+      "Sfadless\\Pdf\\Test\\": "tests/"
     }
   },
-  "require": {
-    "php": ">=8.1",
-    "mpdf/mpdf": "^v8.2.2",
-    "twig/twig": "^v3.8.0",
-    "symfony/event-dispatcher": "^6.4 || ^7.0",
-    "symfony/options-resolver": "^6.4 || ^7.0"
+  "config": {
+    "sort-packages": true
   },
-  "require-dev": {
-    "phpunit/phpunit": ">=9.0"
+  "scripts": {
+    "test": "phpunit",
+    "cs": "php-cs-fixer fix --dry-run --diff",
+    "cs:fix": "php-cs-fixer fix"
   }
 }
